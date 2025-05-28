@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<!--
+Archivo: index.html
+Proyecto: Aplicación para Crear, Editar y Eliminar Usuarios
+Tecnologías: HTML, CSS, JavaScript, Express.js
+-->
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Crear Usuario</title>
+  <!-- Vincula la hoja de estilos externa -->
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Diseño responsivo 
+       📌 Esto le dice al navegador que use el ancho real del dispositivo (no uno simulado como en PC).
+       Si tu archivo HTML no tiene esta línea en el <head>, los navegadores móviles simulan una vista de escritorio, lo que hace que todo se vea diminuto y no se aplique el diseño móvil correctamente.
+  -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <!-- Título principal -->
+  <h1>Crear nuevo usuario</h1>
+
+  <!-- Formulario de creación de usuarios -->
+  <form id="formulario">
+    <!-- Campo para el nombre (texto, obligatorio, mínimo 3 caracteres) -->
+    <input type="text" id="nombre" placeholder="Nombre" required minlength="3"/>
+
+    <!-- Campo para la edad (número, obligatorio, entre 1 y 120) -->
+    <input type="number" id="edad" placeholder="Edad" required min="1" max="120"/>
+
+    <!-- Botón de envío del formulario -->
+    <button type="submit">Enviar</button>
+  </form>
+
+  <!-- Lista donde se mostrarán los usuarios existentes -->
+  <h2>Lista de usuarios</h2>
+  <ul id="lista-usuarios"></ul>
+
+  <!-- Formulario de edición de usuario (inicialmente oculto) -->
+  <form id="form-editar" style="display: none;">
+    <h2>Editar usuario</h2>
+    <input type="text" id="editar-nombre" placeholder="Nuevo nombre" required />
+    <input type="number" id="editar-edad" placeholder="Nueva edad" required />
+    <input type="hidden" id="editar-id" /> <!-- ID oculto del usuario -->
+    <button type="submit">Actualizar</button>
+  </form>
+
+  <script>
+    // Obtener el formulario de creación
+    const formulario = document.getElementById('formulario');
+
+    // Evento al enviar el formulario de nuevo usuario
+    formulario.addEventListener('submit', async (e) => {
+      e.preventDefault(); // Evita recarga de página
+
+      const nombre = document.getElementById('nombre').value.trim();
+      const edad = document.getElementById('edad').value;
+
+      // Validaciones manuales
+      if (nombre.length < 3) {
+        alert('❌ El nombre debe tener al menos 3 caracteres');
+        return;
+      }
+
+      if (isNaN(edad) || edad < 1 || edad > 120) {
+        alert('❌ La edad debe estar entre 1 y 120');
+        return;
+      }
+
+      // Enviar datos al servidor (crear usuario)
+      const respuesta = await fetch('http://192.168.0.5:3000/usuarios', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ nombre, edad })
+      });
+
+      const data = await respuesta.json();
+
+      if (respuesta.ok) {
+        alert('✅ Usuario creado: ' + JSON.stringify(data));
+        cargarUsuarios(); // Recarga la lista
+      } else {
+        alert('❌ Error: ' + data.error || 'Error desconocido');
+      }
+    });
+
+    // Cargar usuarios desde la API y mostrarlos en la lista
+    async function cargarUsuarios() {
+      const respuesta = await fetch('http://192.168.0.5:3000/usuarios');
+      const data = await respuesta.json();
+
+      const lista = document.getElementById('lista-usuarios');
+      lista.innerHTML = ''; // Limpiar lista
+
+      data.forEach(usuario => {
+        const item = document.createElement('li');
+        item.innerHTML = `<span class="usuario-info">${usuario.nombre} (${usuario.edad} años)</span>
+  <div class="botones">
+    <button onclick="mostrarFormularioEdicion('${usuario._id}', '${usuario.nombre}', ${usuario.edad})">Editar&nbsp;&nbsp;&nbsp;🖊️</button>
+    <button onclick="eliminarUsuario('${usuario._id}')">Eliminar&nbsp;&nbsp;&nbsp;✖️</button>
+  </div>`;
+        lista.appendChild(item);
+      });
+    }
+
+    // Ejecutar al cargar la página
+    window.onload = cargarUsuarios;
+
+    // Mostrar el formulario de edición con datos actuales del usuario
+    function mostrarFormularioEdicion(id, nombre, edad) {
+      document.getElementById('editar-nombre').value = nombre;
+      document.getElementById('editar-edad').value = edad;
+      document.getElementById('editar-id').value = id;
+      document.getElementById('form-editar').style.display = 'block';
+    }
+
+    // Enviar cambios del formulario de edición
+    document.getElementById('form-editar').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const id = document.getElementById('editar-id').value;
+      const nombre = document.getElementById('editar-nombre').value;
+      const edad = document.getElementById('editar-edad').value;
+
+      // Validaciones
+      if (nombre.length < 3) {
+        alert('❌ El nombre debe tener al menos 3 caracteres');
+        return;
+      }
+
+      if (isNaN(edad) || edad < 1 || edad > 120) {
+        alert('❌ La edad debe estar entre 1 y 120');
+        return;
+      }
+
+      // Enviar actualización al servidor
+      const res = await fetch(`http://192.168.0.5:3000/usuarios/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ nombre, edad })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert('✅ Usuario actualizado');
+        document.getElementById('form-editar').style.display = 'none';
+        cargarUsuarios();
+      } else {
+        alert('❌ Error al actualizar: ' + data.error);
+      }
+    });
+
+    // Eliminar usuario desde la lista
+    function eliminarUsuario(id) {
+      if (!confirm('¿Estás seguro de eliminar este usuario?')) return;
+
+      fetch(`http://192.168.0.5:3000/usuarios/${id}`, {
+        method: 'DELETE'
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert(`🗑️ ${data.mensaje}`);
+        cargarUsuarios();
+      })
+      .catch(err => {
+        alert('❌ Error al eliminar: ' + err.message);
+      });
+    }
+  </script>
+</body>
+</html>
