@@ -26,6 +26,7 @@ crud-usuarios/
 ├── frontend/
 │   ├── index.html               # Interfaz de usuario principal
 │   ├── styles.css               # Estilos CSS del frontend
+├── package-lock.json            # Versión exacta de dependencias instaladas
 ├── package.json                 # Dependencias y scripts del proyecto 
 ├── README.md                    # Documentación del proyecto
 ```
