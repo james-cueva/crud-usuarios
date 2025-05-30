@@ -1,2 +1,26 @@
 node_modules/
 .env
+
+# Se tiene esta estructura:
+
+# mi-api/
+# ├── backend/
+# │   ├── index.js
+# │   ├── .env          👈 aquí está tu .env
+# │   ├── .gitignore    👈 aquí está tu .gitignore
+# ├── frontend/
+
+# Y se entra a la carpeta backend/ y se ejecuta el backend así:
+
+# cd backend
+# node index.js
+
+# ✅ En este caso:
+
+# El archivo .env debe estar en backend/, porque ahí se ejecuta
+# el proceso de Node.js.
+
+# El .gitignore también puede estar en backend/,
+# si solo quieres ignorar cosas del backend (como node_modules/, .env, etc.).
+
+# En este caso, está perfecto que ambos estén en backend/.
