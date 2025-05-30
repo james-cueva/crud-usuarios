@@ -50,7 +50,7 @@ crud-usuarios/
 Abre tu terminal y ejecuta:
 
 ```bash
-git git clone https://github.com/james-cueva/crud-usuarios.git
+git clone https://github.com/james-cueva/crud-usuarios.git
 ```
 Esto descargará el proyecto en una carpeta llamada crud-usuarios.
 
