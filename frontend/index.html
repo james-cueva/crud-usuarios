@@ -59,7 +59,7 @@
         return;
       }
 
-      const respuesta = await fetch('http://192.168.0.5:3000/usuarios', {
+      const respuesta = await fetch('http://localhost:3000/usuarios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nombre, edad })
@@ -76,7 +76,7 @@
 
     // Función para cargar y mostrar todos los usuarios
     async function cargarUsuarios() {
-      const respuesta = await fetch('http://192.168.0.5:3000/usuarios');
+      const respuesta = await fetch('http://localhost:3000/usuarios');
       const data = await respuesta.json();
 
       const lista = document.getElementById('lista-usuarios');
@@ -111,7 +111,7 @@
       const nombre = document.getElementById('editar-nombre').value;
       const edad = document.getElementById('editar-edad').value;
 
-      const res = await fetch(`http://192.168.0.5:3000/usuarios/${id}`, {
+      const res = await fetch(`http://localhost:3000/usuarios/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nombre, edad })
@@ -132,7 +132,7 @@
     function eliminarUsuario(id) {
       if (!confirm('¿Estás seguro de eliminar este usuario?')) return;
 
-      fetch(`http://192.168.0.5:3000/usuarios/${id}`, { method: 'DELETE' })
+      fetch(`http://localhost:3000/usuarios/${id}`, { method: 'DELETE' })
         .then(res => res.json())
         .then(data => {
           alert(`🗑️ ${data.mensaje}`);
