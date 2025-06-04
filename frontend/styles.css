@@ -127,12 +127,12 @@ li button:last-child:hover {
     flex-direction: row;
     justify-content: center;
   }
-
+  /* Botones al 40% del ancho con margen superior para separarlos */
   .botones button {
     width: 40%;
     margin: 5px 0 0 0;
   }
-
+  /* Espacio inferior entre bloques de info del usuario */
   .usuario-info {
     margin-bottom: 8px;
   }

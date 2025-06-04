@@ -1,64 +1,83 @@
-<!-- frontend/index.html -->
-
 <!--
-  Página principal del frontend de la aplicación CRUD de usuarios.
+  index.html – Interfaz frontend para gestión de usuarios (CRUD)
 
-  Este archivo proporciona una interfaz para:
-  - Crear un nuevo usuario (nombre y edad)
-  - Ver la lista actual de usuarios
-  - Editar usuarios existentes
-  - Eliminar usuarios
+  Este archivo proporciona una interfaz de usuario para:
+  ✅ Crear usuarios
+  ✅ Listar todos los usuarios
+  ✅ Editar un usuario
+  ✅ Eliminar usuarios
 
-  La comunicación con el backend se realiza a través de peticiones HTTP
-  usando la API Fetch para interactuar con las rutas REST del servidor.
+  Se comunica con un backend REST API usando fetch() para enviar y recibir datos.
+  El backend debe estar desplegado (por ejemplo, en Render), y su URL debe
+  actualizarse donde corresponda (actualmente localhost).
 -->
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <title>Crear Usuario</title>
+
+  <!-- Enlace al archivo CSS externo para estilos -->
   <link rel="stylesheet" href="styles.css" />
+
+  <!-- Viewport responsivo para móviles -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
 
 <body>
   <h1>Crear nuevo usuario</h1>
 
-  <!-- Formulario para crear un nuevo usuario -->
+  <!-- Formulario para crear usuarios -->
   <form id="formulario">
+    <!-- Campo de texto para nombre (mínimo 3 caracteres) -->
     <input type="text" id="nombre" placeholder="Nombre" required minlength="3" />
+
+    <!-- Campo numérico para edad (valores válidos: 1 a 120 años) -->
     <input type="number" id="edad" placeholder="Edad" required min="1" max="120" />
+
+    <!-- Botón para enviar el formulario -->
     <button type="submit">Enviar</button>
   </form>
 
-  <!-- Sección que muestra todos los usuarios registrados -->
+  <!-- Encabezado para la sección de usuarios listados -->
   <h2>Lista de usuarios</h2>
+
+  <!-- Lista que se llena dinámicamente con los usuarios desde la API -->
   <ul id="lista-usuarios"></ul>
 
-  <!-- Formulario para editar un usuario existente (oculto por defecto) -->
+  <!-- Formulario oculto que aparece al editar un usuario -->
   <form id="form-editar" style="display: none;">
     <h2>Editar usuario</h2>
+
+    <!-- Nuevos valores del usuario -->
     <input type="text" id="editar-nombre" placeholder="Nuevo nombre" required />
     <input type="number" id="editar-edad" placeholder="Nueva edad" required />
-    <input type="hidden" id="editar-id" /> <!-- ID oculto del usuario -->
+
+    <!-- Campo oculto para almacenar el ID del usuario a editar -->
+    <input type="hidden" id="editar-id" />
+
     <button type="submit">Actualizar</button>
   </form>
 
   <script>
-    // Función para manejar el envío del formulario de creación
+    // Al cargar la página, se llama a cargarUsuarios()
+    window.onload = cargarUsuarios;
+
+    // ✅ FORMULARIO: Crear nuevo usuario
     const formulario = document.getElementById('formulario');
     formulario.addEventListener('submit', async (e) => {
-      e.preventDefault();
+      e.preventDefault(); // Evita recargar la página
 
       const nombre = document.getElementById('nombre').value.trim();
       const edad = document.getElementById('edad').value;
 
+      // Validaciones mínimas antes de enviar al backend
       if (nombre.length < 3 || isNaN(edad) || edad < 1 || edad > 120) {
         alert('❌ Datos inválidos');
         return;
       }
 
+      // Envío de datos al backend (POST)
       const respuesta = await fetch('http://localhost:3000/usuarios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -66,24 +85,27 @@
       });
 
       const data = await respuesta.json();
+
       if (respuesta.ok) {
         alert('✅ Usuario creado');
-        cargarUsuarios();
+        cargarUsuarios(); // Actualiza la lista
       } else {
         alert('❌ Error: ' + data.error);
       }
     });
 
-    // Función para cargar y mostrar todos los usuarios
+    // 📥 FUNCIÓN: Obtener y mostrar usuarios desde la base de datos
     async function cargarUsuarios() {
       const respuesta = await fetch('http://localhost:3000/usuarios');
       const data = await respuesta.json();
 
       const lista = document.getElementById('lista-usuarios');
-      lista.innerHTML = '';
+      lista.innerHTML = ''; // Limpiar contenido anterior
 
+      // Crear un <li> por cada usuario
       data.forEach(usuario => {
         const item = document.createElement('li');
+
         item.innerHTML = `
           <span class="usuario-info">${usuario.nombre} (${usuario.edad} años)</span>
           <div class="botones">
@@ -91,11 +113,12 @@
             <button onclick="eliminarUsuario('${usuario._id}')">Eliminar&nbsp;&nbsp;&nbsp;✖️</button>
           </div>
         `;
+
         lista.appendChild(item);
       });
     }
 
-    // Mostrar formulario de edición con los datos actuales del usuario
+    // ✏️ FUNCIÓN: Mostrar formulario de edición con valores actuales
     function mostrarFormularioEdicion(id, nombre, edad) {
       document.getElementById('editar-nombre').value = nombre;
       document.getElementById('editar-edad').value = edad;
@@ -103,7 +126,7 @@
       document.getElementById('form-editar').style.display = 'block';
     }
 
-    // Enviar cambios del formulario de edición
+    // 📤 FORMULARIO: Enviar actualización de usuario al backend
     document.getElementById('form-editar').addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -128,23 +151,22 @@
       }
     });
 
-    // Eliminar un usuario
+    // 🗑️ FUNCIÓN: Eliminar usuario por ID
     function eliminarUsuario(id) {
       if (!confirm('¿Estás seguro de eliminar este usuario?')) return;
 
-      fetch(`http://localhost:3000/usuarios/${id}`, { method: 'DELETE' })
-        .then(res => res.json())
-        .then(data => {
-          alert(`🗑️ ${data.mensaje}`);
-          cargarUsuarios();
-        })
-        .catch(err => {
-          alert('❌ Error al eliminar: ' + err.message);
-        });
+      fetch(`http://localhost:3000/usuarios/${id}`, {
+        method: 'DELETE'
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert(`🗑️ ${data.mensaje}`);
+        cargarUsuarios();
+      })
+      .catch(err => {
+        alert('❌ Error al eliminar: ' + err.message);
+      });
     }
-
-    // Cargar usuarios automáticamente al iniciar
-    window.onload = cargarUsuarios;
   </script>
 </body>
 </html>

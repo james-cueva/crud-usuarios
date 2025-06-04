@@ -14,7 +14,11 @@
  * - DELETE  /:id     → Eliminar un usuario existente por ID
  */
 
+// Importa el módulo Express, que es el framework que usamos para construir el backend.
 const express = require('express');
+// Crea una instancia del enrutador de Express.
+// Este enrutador nos permite definir rutas específicas para los usuarios,
+// separando la lógica del enrutamiento del archivo principal `index.js`.
 const router = express.Router();
 
 // Importa las funciones del controlador de usuario

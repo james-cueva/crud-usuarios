@@ -14,20 +14,33 @@
 // Cargar variables de entorno desde el archivo .env
 require('dotenv').config();
 
+// Importa el módulo Mongoose, que es una biblioteca ODM (Object Data Modeling)
+// para MongoDB. Permite interactuar con la base de datos utilizando objetos JavaScript.
 const mongoose = require('mongoose');
 
 /**
- * Conecta la aplicación a MongoDB usando Mongoose.
- * Si la conexión falla, se muestra un mensaje de error y se detiene la ejecución del proceso.
+ * Función asíncrona para conectar la aplicación con MongoDB Atlas.
+ * Utiliza la URI almacenada en las variables de entorno para establecer la conexión.
+ *
+ * Este tipo de función permite:
+ * - Separar la lógica de conexión en un módulo reutilizable.
+ * - Manejar errores de forma ordenada en caso de que la conexión falle.
  */
 const conectarDB = async () => { 
   try {   
+    // Intenta establecer la conexión con MongoDB usando la URI definida en el archivo .env.
     await mongoose.connect(process.env.MONGODB_URI);
+    // Si la conexión es exitosa, muestra un mensaje en consola.
     console.log('✅ Conectado a MongoDB Atlas');
   } catch (error) {
+    // Si ocurre un error al intentar conectarse, lo muestra en consola.
     console.error('❌ Error al conectar a MongoDB:', error);
-    process.exit(1); // Finaliza la aplicación si no puede conectarse
+    // Finaliza el proceso de la aplicación con un código de error.
+    // Esto evita que el servidor siga corriendo sin estar conectado a la base de datos.
+    process.exit(1);
   }
 };
 
+// Exporta la función para poder utilizarla desde otros archivos del proyecto,
+// como el archivo principal `index.js`.
 module.exports = conectarDB;

@@ -9,6 +9,7 @@
  * - edad: número, obligatorio, entre 1 y 120
  */
 
+// Importa mongoose, que permite definir esquemas y modelos para documentos en MongoDB.
 const mongoose = require('mongoose');
 
 // Definición del esquema para los documentos de tipo Usuario
